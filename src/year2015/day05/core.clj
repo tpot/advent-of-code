@@ -20,7 +20,7 @@
   "Return true is string contains at least one letter twice in a row."
   [x]
   (reduce
-   (fn [result [a b]] (if (= a b) (reduced true) false))
+   (fn [_ [a b]] (if (= a b) (reduced true) false))
    false
    (partition 2 1 x)))
 
