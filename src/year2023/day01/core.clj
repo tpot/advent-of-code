@@ -1,6 +1,7 @@
-(require '[clojure.string :as s])
+(ns year2023.day01.core
+  (:require [clojure.string :as s]))
 
-(def puzzle-input (-> (slurp "2023/day01/input") s/split-lines))
+(def puzzle-input (-> (slurp "resources/year2023/day01/input") s/split-lines))
 
 ;; Part 1
 
