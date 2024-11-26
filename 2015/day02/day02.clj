@@ -14,8 +14,8 @@
   (min (* length width) (* width height) (* height length)))
 
 (->> input
-     (map (fn [[length width height]] 
-            (+ (area length width height) 
+     (map (fn [[length width height]]
+            (+ (area length width height)
                (slack length width height))))
      (reduce + 0)) ;; => 1586300
 

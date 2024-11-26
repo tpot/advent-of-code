@@ -17,7 +17,7 @@
        (map parse-line)))
 
 (deftest test-parse-input
-  (is (= [[0 3 6 9 12 15] [1 3 6 10 15 21] [10 13 16 21 30 45]] 
+  (is (= [[0 3 6 9 12 15] [1 3 6 10 15 21] [10 13 16 21 30 45]]
          (parse-input test-input))))
 
 ;; Part 1
@@ -77,7 +77,7 @@
 
 (defn predicted-value-first
   [readings]
-  (let [readings-history (->> (reverse (sensor-history readings)) 
+  (let [readings-history (->> (reverse (sensor-history readings))
                               (map seq))] ; Argh why is (map seq) needed here?
     (ffirst
      (reduce

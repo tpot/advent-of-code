@@ -10,7 +10,7 @@
 ;; Input parsing
 
  (defn parse-line
-   "Parse a line of text into a map of card number, winning and the actual numbers 
+   "Parse a line of text into a map of card number, winning and the actual numbers
    we scratched off."
    [line]
    (let [[_ card-num winning actual]

@@ -5,7 +5,7 @@
 (def test-input (slurp "resources/year2023/day05/test-input"))
 (def puzzle-input (slurp "resources/year2023/day05/input"))
 
-;; Parse input 
+;; Parse input
 
 (defn parse-block
   "Parse a double-newline separated paragraph."

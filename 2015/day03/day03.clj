@@ -46,7 +46,7 @@
             :visited #{[0 0]}}}
    (partition 2 input)))
 
-(defn unique-visits 
+(defn unique-visits
   [state]
   (->> state vals (map :visited) (apply set/union)))
 

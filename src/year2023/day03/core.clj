@@ -187,7 +187,7 @@
          (filter some?))))
 
 (comment
-  
+
   ;; Multiply the part numbers of each gear to calculate the gear
   ;; ratio, then sum the ratios of all gears.
 
