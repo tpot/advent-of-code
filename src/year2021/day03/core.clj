@@ -27,12 +27,12 @@
   [v]
   (->> v (remove zero?) count))
 
-(defn gamma_bit
+(defn gamma-bit
   "Gamma bit set if more ones than zeros."
   [[zeros ones]]
   (if (> ones zeros) 1 0))
 
-(defn epsilon_bit
+(defn epsilon-bit
   "Epsilon bit set if more zeros than ones."
   [[zeros ones]]
   (if (< ones zeros) 1 0))
@@ -42,10 +42,10 @@
 (defn part01
   [input]
   (let [report     (parse-input input)
-        bit_counts (->> (apply map vector report)
+        bit-counts (->> (apply map vector report)
                         (map #(vector (count-zeros %) (count-ones %))))
-        gamma      (map gamma_bit bit_counts)
-        epsilon    (map epsilon_bit bit_counts)]
+        gamma      (map gamma-bit bit-counts)
+        epsilon    (map epsilon-bit bit-counts)]
     (reduce * 1 (map #(->> % reverse (map * powers-of-two) (reduce + 0)) [gamma epsilon]))))
 
 (deftest test-part01
