@@ -134,25 +134,25 @@
            ;; Increment y coordinates for empty rows
          (#(reduce
             (fn [result input]
-              (let [[rs _] (split-at (inc input) empty-rows)]
-                (let [row-ndx (last rs)
-                      num-prev-rows (* expansion-factor (dec (count rs)))]
-                  (map (fn [[x y]]
-                         (if (> y (+ row-ndx num-prev-rows))
-                           [x (+ y expansion-factor)]
-                           [x y])) result))))
+              (let [[rs _] (split-at (inc input) empty-rows)
+                    row-ndx (last rs)
+                    num-prev-rows (* expansion-factor (dec (count rs)))]
+                (map (fn [[x y]]
+                       (if (> y (+ row-ndx num-prev-rows))
+                         [x (+ y expansion-factor)]
+                         [x y])) result)))
             (sort-by second %)
             (range (count empty-rows))))
            ;; Increment x coordinates for empty cols
          (#(reduce
             (fn [result input]
-              (let [[cs _] (split-at (inc input) empty-cols)]
-                (let [col-ndx (last cs)
-                      num-prev-cols (* expansion-factor (dec (count cs)))]
-                  (map (fn [[x y]]
-                         (if (> x (+ col-ndx num-prev-cols))
-                           [(+ x expansion-factor) y]
-                           [x y])) result))))
+              (let [[cs _] (split-at (inc input) empty-cols)
+                    col-ndx (last cs)
+                    num-prev-cols (* expansion-factor (dec (count cs)))]
+                (map (fn [[x y]]
+                       (if (> x (+ col-ndx num-prev-cols))
+                         [(+ x expansion-factor) y]
+                         [x y])) result)))
             (sort-by first %)
             (range (count empty-cols))))
          combination
@@ -169,4 +169,3 @@
   (is (= 8410    (part02 99 test-input)))
 
   (is (= 569052586852 (part02 (dec 1000000) puzzle-input))))
-  

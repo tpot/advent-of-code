@@ -8,7 +8,7 @@
         raw (.digest algorithm (.getBytes s))]
     (format "%032x" (BigInteger. 1 raw))))
 
-(def input (string/trim-newline (slurp "2015/day04/input")))
+(def input (s/trim-newline (slurp "2015/day04/input")))
 
 (defn mine
   [input difficulty]
