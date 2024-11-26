@@ -1,0 +1,3 @@
+{:linters
+ {:unused-namespace    {:exclude [clojure.pprint]}
+  :unused-referred-var {:exclude {clojure.pprint [pprint]}}}}
