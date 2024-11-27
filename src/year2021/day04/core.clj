@@ -74,20 +74,26 @@
 (deftest test-unmarked-numbers
   (is (= (set [4 5 6]) (unmarked-numbers [[1 2 3] [4 5 6]] [1 2 0 3]))))
 
+(defn score-winner
+  [winner]
+  (->> (unmarked-numbers (get winner :board) (get winner :draw))
+       (reduce + 0)
+       (* (last (get winner :draw)))))
+
 ;; Part 1
 
 (defn part01
+  "Find and score the first winning game"
   [input]
   (let [game (parse-input input)
-        winner (reduce
-                (fn [_ draw]
-                  (when-let [winner (some #(board-wins? % draw) (get game :boards))]
-                    (reduced {:board winner :draw draw})))
-                nil
-                (draw-seq (get game :draw)))]
-    (->> (unmarked-numbers (get winner :board) (get winner :draw))
-         (reduce + 0)
-         (* (last (get winner :draw))))))
+        winner
+        (reduce
+         (fn [_ draw]
+           (when-let [winner (some #(board-wins? % draw) (get game :boards))]
+             (reduced {:board winner :draw draw})))   ; Break on first winner found
+         nil
+         (draw-seq (get game :draw)))]
+    (score-winner winner)))
 
 (deftest test-part01
   (is (= 4512 (part01 test-input)))
@@ -96,8 +102,26 @@
 ;; Part 2
 
 (defn part02
-  [input])
+  "Find and score the last winning game"
+  [input]
+  (let [game (parse-input input)
+        state
+        (reduce
+         (fn [{:keys [won-boards open-boards] :as state} draw]
+           (let [now-closed  (filter #(board-wins? % draw) open-boards)
+                 still-open (remove #(board-wins? % draw) open-boards)]
+             (if (seq now-closed)
+               {:won-boards (concat won-boards (map #(zipmap [:board :draw] [% draw]) now-closed))
+                :open-boards still-open}
+               state)))
+         {:winners []
+          :open-boards (get game :boards)}
+         (draw-seq (get game :draw)))
+        last-winner (last (get state :won-boards))]
+    (score-winner last-winner)))
 
-(deftest test-part02)
+(deftest test-part02
+  (is (= 1924 (part02 test-input)))
+  (is (= 36975 (part02 puzzle-input))))
 
 (run-tests)
