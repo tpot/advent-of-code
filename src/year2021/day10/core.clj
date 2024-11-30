@@ -61,34 +61,47 @@
 
 (def incorrect-char-cost-map (into {} incorrect-char-cost))
 
-(defn find-incorrect-char
+(defn process-nav-syntax
+  "Process a line of navigation system syntax. Return "
   [line]
   (loop [nav-sub line
          block-stack ()
          max-iter 1000]
     (cond
+      ; Loop termination conditions
       (zero? max-iter) (throw (Exception. "Iteration limit exceeded!"))
-      (empty? line) true
+      (empty? nav-sub) (zipmap [:result :block-stack] [:success block-stack])
+
       :else
       (let [block (first nav-sub)]
-        (if (open-char? block)
+        (cond
+          ; Push new open char onto the stack
+          (open-char? block)
           (recur
            (rest nav-sub)
            (conj block-stack block)
            (dec max-iter))
-          (if (not (matching-close? (first block-stack) block))
-            block
-            (recur
-             (rest nav-sub)
-             (rest block-stack)
-             (dec max-iter))))))))
+
+          ; Pop matching close char off the stack
+          (matching-close? (first block-stack) block)
+          (recur
+           (rest nav-sub)
+           (rest block-stack)
+           (dec max-iter))
+
+          ; Syntax error
+          :else
+          (zipmap
+           [:result :illegal-character :block-stack]
+           [:syntax-error block block-stack]))))))
 
 (defn part01
   [input]
   (let [lines (parse-input input)]
     (->> lines
-         (map find-incorrect-char)
-         (remove nil?)
+         (map process-nav-syntax)
+         (filter #(= (get % :result) :syntax-error))
+         (map :illegal-character)
          (map incorrect-char-cost-map)
          (reduce + 0))))
 
@@ -98,9 +111,34 @@
 
 ;; Part 2
 
-(defn part02
-  [input])
+(def matching-char-cost
+  [[:close-paren  1]
+   [:close-square 2]
+   [:close-curly  3]
+   [:close-angle  4]])
 
-(deftest test-part02)
+(def matching-char-cost-map (into {} matching-char-cost))
+
+(defn middle [xs] (nth xs (/ (dec (count xs)) 2)))
+
+(defn part02
+  [input]
+  (let [lines (parse-input input)]
+    (->> lines
+         (map process-nav-syntax)
+         (filter #(= (get % :result) :success))
+         (map :block-stack)
+         (map #(map matching-char-map %))
+         (map #(map matching-char-cost-map %))
+         (map #(reduce
+                (fn [cost input]
+                  (+ (* cost 5) input))
+                0 %))
+         (sort)
+         (middle))))
+
+(deftest test-part02
+  (is (= 288957 (part02 test-input)))
+  (is (= nil (part02 puzzle-input))))
 
 (run-tests)
