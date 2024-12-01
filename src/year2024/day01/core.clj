@@ -28,8 +28,22 @@
   (is (= 1941353 (part01 puzzle-input))))
 
 (defn part02
-  [input])
+  [input]
+  (let [lists (parse-input input)
+        left (map first lists)
+        right-count (update-vals
+                     (->> lists
+                          (map second)
+                          (group-by identity))
+                     count)]
+    (reduce
+     (fn [result input]
+       (+ result (* input (or (get right-count input) 0))))
+     0
+     left)))
 
-(deftest test-part02)
+(deftest test-part02
+  (is (= 31 (part02 test-input)))
+  (is (= 22539317 (part02 puzzle-input))))
 
 (run-tests)
