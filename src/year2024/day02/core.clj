@@ -5,26 +5,29 @@
 (def test-input "resources/year2024/day02/test-input")
 (def puzzle-input "resources/year2024/day02/input")
 
-(defn safe?
-  "Return true if a report is safe"
-  [report]
-  (or
-   (= (->> (partition 2 1 report)
-           (map #(- (second %) (first %)))
-           (filter #(and (>= % 1) (<= % 3)))
-           count)
-      (dec (count report)))
-   (= (->> (partition 2 1 report)
-           (map #(- (first %) (second %)))
-           (filter #(and (>= % 1) (<= % 3)))
-           count)
-      (dec (count report)))))
+;; Input parsing
 
 (defn parse-input
   [input]
   (->> (-> (slurp input) s/split-lines)
        (map #(s/split % #" "))
        (map #(map parse-long %))))
+
+;; Part 1
+
+(defn safe?
+  "Return true if a report is safe"
+  [report]
+  (reduce
+   (fn [result f]
+     (or result
+         (->> (partition 2 1 report)
+              (map f)
+              (filter #(and (>= % 1) (<= % 3)))
+              count
+              (= (dec (count report))))))
+   false
+   [#(- (second %) (first %)), #(- (first %) (second %))]))
 
 (defn part01
   [input]
@@ -46,10 +49,7 @@
 (defn safe-with-damper?
   [report]
   (if (safe? report) true
-      (> (->> (drop-one report)
-              (filter safe?)
-              count)
-         0)))
+      (> (->> (drop-one report) (filter safe?) count) 0)))
 
 (deftest test-safe-with-damper?
   (is (true?  (safe-with-damper? [7 6 4 2 1])))
@@ -58,6 +58,8 @@
   (is (true?  (safe-with-damper? [1 3 2 4 5])))
   (is (true?  (safe-with-damper? [8 6 4 4 1])))
   (is (true?  (safe-with-damper? [1 3 6 7 9]))))
+
+;; Part 2
 
 (defn part02
   [input]
