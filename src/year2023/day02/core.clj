@@ -59,7 +59,7 @@
        (map #(hash-map :game-id (:game-id %) :possible? (possible-game? %)))
        (filter :possible?)
        (map :game-id)
-       (reduce + 0)) ;; => 2913
+       (apply +)) ;; => 2913
   )
 
 ;; Part 2: What is the fewest number of cubes to make each game possible?
@@ -89,5 +89,5 @@
   (->> (map parse-game puzzle-input)
        (map get-max-colors)
        (map #(apply * (vals %)))
-       (reduce + 0)) ;; => 55593
+       (apply +)) ;; => 55593
   )

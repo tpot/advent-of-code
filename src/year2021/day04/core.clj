@@ -77,7 +77,7 @@
 (defn score-winner
   [winner]
   (->> (unmarked-numbers (get winner :board) (get winner :draw))
-       (reduce + 0)
+       (apply +)
        (* (last (get winner :draw)))))
 
 ;; Part 1

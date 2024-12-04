@@ -113,7 +113,7 @@
        find-galaxies
        combination
        (map #(apply manhattan %))
-       (reduce + 0)))
+       (apply +)))
 
 (deftest test-part01
   (is (= 374 (part01 test-input)))
@@ -157,7 +157,7 @@
             (range (count empty-cols))))
          combination
          (map #(apply manhattan %))
-         (reduce + 0))))
+         (apply +))))
 
 
 ;; TODO - figure out off-by-one error

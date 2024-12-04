@@ -17,7 +17,7 @@
      (map (fn [[length width height]]
             (+ (area length width height)
                (slack length width height))))
-     (reduce + 0)) ;; => 1586300
+     (apply +)) ;; => 1586300
 
 ;; Part 2
 
@@ -35,4 +35,4 @@
                     (perimeter length height)
                     (perimeter width height))
                (volume length width height))))
-     (reduce + 0)) ;; => 3737498
+     (apply +)) ;; => 3737498

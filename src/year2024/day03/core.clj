@@ -18,7 +18,7 @@
        (map rest)
        (map #(map parse-long %))
        (map #(apply * %))
-       (reduce + 0)))
+       (apply +)))
 
 (deftest test-part01
   (is (= 161 (part01 test-input1)))

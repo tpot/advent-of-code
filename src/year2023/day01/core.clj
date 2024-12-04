@@ -19,8 +19,8 @@
                    "a1b2c3d4e5f"
                    "treb7uchet"])
 
-  (reduce + 0 (map calibration-value test-input)) ;; => 142
-  (reduce + 0 (map calibration-value puzzle-input)) ;; => 55090
+  (apply + (map calibration-value test-input)) ;; => 142
+  (apply + (map calibration-value puzzle-input)) ;; => 55090
 
   :rcf)
 
@@ -72,7 +72,7 @@
      "zoneight234"
      "7pqrstsixteen"])
 
-  (reduce + 0 (map calibration-value2 test-input)) ;; => 281
-  (reduce + 0 (map calibration-value2 puzzle-input)) ;; => 54845
+  (apply + (map calibration-value2 test-input)) ;; => 281
+  (apply + (map calibration-value2 puzzle-input)) ;; => 54845
 
   :rcf)

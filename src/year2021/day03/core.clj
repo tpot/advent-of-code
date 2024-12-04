@@ -43,7 +43,7 @@
 (defn bitarray->int
   "Convert array of bits to an integer"
   [xs]
-  (->> xs reverse (map * powers-of-two) (reduce + 0)))
+  (->> xs reverse (map * powers-of-two) (apply +)))
 
 ;; Part 1
 

@@ -60,7 +60,7 @@
   (->> (range)
        (drop 1)
        (take (abs (- from to)))
-       (reduce + 0)))
+       (apply +)))
 
 (defn part02
   [input]

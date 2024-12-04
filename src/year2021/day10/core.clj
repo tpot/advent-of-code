@@ -103,7 +103,7 @@
          (filter #(= (get % :result) :syntax-error))
          (map :illegal-character)
          (map incorrect-char-cost-map)
-         (reduce + 0))))
+         (apply +))))
 
 (deftest test-part01
   (is (= 26397 (part01 test-input)))

@@ -33,7 +33,7 @@
    (->> (map parse-line (s/split-lines input))
         (map #(set/intersection (:winning %) (:actual %)))
         (map #(score (count %)))
-        (reduce + 0)))
+        (apply +)))
 
  (deftest test-part01
    (is (= 13 (part01 test-input)))

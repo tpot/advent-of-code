@@ -139,7 +139,7 @@
     (->> part-nos
          (filter (partial part-no-valid? schematic))
          (map :part-no)
-         (reduce + 0))) ;; => 549908
+         (apply +))) ;; => 549908
 
   :rcf)
 
@@ -194,6 +194,6 @@
   (->> (gears puzzle-schematic)
        (map :gears)
        (map (fn [[g1 g2]] (* (:part-no g1) (:part-no g2))))
-       (reduce + 0)) ;; => 81166799
+       (apply +)) ;; => 81166799
 
   :rcf)

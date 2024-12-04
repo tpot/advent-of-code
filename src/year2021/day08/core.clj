@@ -47,7 +47,7 @@
     ; 4   [:b :c :d :f]
     ; 7   [:a :c :f]
     ; 8   [:a :b :c :d :e :f :g]
-    (reduce + 0 (map #(get counts %) [2 3 4 7]))))
+    (apply + (map #(get counts %) [2 3 4 7]))))
 
 (deftest test-part01
   (is (= 26 (part01 test-input)))
@@ -139,7 +139,7 @@
        (map
         (fn [{:keys [signals output]}]
           (output->number (signals->mapping signals) output)))
-       (reduce + 0)))
+       (apply +)))
 
 (deftest test-part02
   (is (= 61229 (part02 test-input)))

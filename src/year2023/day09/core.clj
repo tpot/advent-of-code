@@ -67,7 +67,7 @@
   [input]
   (->> (parse-input input)
        (map predicted-value)
-       (reduce + 0)))
+       (apply +)))
 
 (deftest test-part01
   (is (= 114 (part01 test-input)))
@@ -90,7 +90,7 @@
   [input]
   (->> (parse-input input)
        (map predicted-value-first)
-       (reduce + 0)))
+       (apply +)))
 
 (deftest test-part02
   (is (= 2 (part02 test-input)))
