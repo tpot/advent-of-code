@@ -139,6 +139,6 @@
 
 (deftest test-part02
   (is (= 288957 (part02 test-input)))
-  (is (= nil (part02 puzzle-input))))
+  (is (= 3103006161 (part02 puzzle-input))))
 
 (run-tests)
