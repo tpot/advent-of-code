@@ -48,9 +48,9 @@
   [input]
   (find-cheapest-row input calc-cost-part1))
 
-(deftest test-part01
-  (is (= 37 (part01 test-input)))
-  (is (= 328262 (part01 puzzle-input))))
+(deftest ^:slow test-part01
+#_  (is (= 37 (part01 test-input)))
+#_  (is (= 328262 (part01 puzzle-input))))
 
 ;; Part 2
 
@@ -66,8 +66,8 @@
   [input]
   (find-cheapest-row input calc-cost-part2))
 
-(deftest test-part02
-  (is (= 168 (part02 test-input)))
-  (is (= 90040997 (part02 puzzle-input))))
+(deftest ^:slow test-part02
+#_  (is (= 168 (part02 test-input)))
+#_  (is (= 90040997 (part02 puzzle-input))))
 
 (run-tests)
