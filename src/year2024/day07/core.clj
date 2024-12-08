@@ -17,7 +17,7 @@
 
 ;; Part 1
 
-(def operators [:add :mult])
+(def part01-operators [:add :mult])
 
 (defn infix->tree
   "Convert seq of operands and operators from infix notation to a tree so
@@ -44,15 +44,19 @@
      (if (vector? x)
        (let [[oper op1 op2] x]
          (condp = oper
-           :mult (* op1 op2)
-           :add  (+ op1 op2)))
+           :mult   (* op1 op2)
+           :add    (+ op1 op2)
+           :concat (->> [op1 op2]     ; Ugh
+                        (map str)
+                        (apply str)
+                        parse-long)))
        x))
    tree))
 
 (defn solve-equation
   "Given a total and operands, try out all combinations of operands and see
    whether any work."
-  [equation]
+  [operators equation]
   (let [total (first equation)
         operands (rest equation)]
     (->> (apply combo/cartesian-product
@@ -60,14 +64,19 @@
          (map #(zipmap [:total :operands :result] [total operands (->> % infix->tree eval-tree)]))
          (filter #(= (:total %) (:result %))))))
 
-(defn part01
-  [input]
-  (->> (parse-input input)
-       (map solve-equation)
+(defn solve
+  [operators input]
+  (->> input
+       (map (partial solve-equation operators))
        (filter seq)
        (map first)
        (map :total)
        (apply +)))
+
+(defn part01
+  [input]
+  (solve part01-operators (parse-input input))
+  )
 
 (deftest test-part01
   (is (= 3749 (part01 test-input)))
@@ -75,11 +84,15 @@
 
 ;; Part 2
 
+(def part02-operators [:mult :add :concat])
+
 (defn part02
-  [file]
+  [input]
+  (solve part02-operators (parse-input input))
   )
 
 (deftest test-part02
-)
+  (is (= 11387 (part02 test-input)))
+  (is (= 169122112716571 (part02 puzzle-input))))
 
 (run-tests)
