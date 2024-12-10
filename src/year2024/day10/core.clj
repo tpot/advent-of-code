@@ -72,8 +72,15 @@
 ;; Part 2
 
 (defn part02
-  [input])
+  [file]
+  (let [found-trails (trails (parse-input file))
+        trails-by-trailhead (map #(vector (last %) %) found-trails)]
+    (->> (update-vals (group-by first trails-by-trailhead) #(count (set (map second %))))
+         vals
+         (apply +))))
 
-(deftest test-part02)
+(deftest test-part02
+  (is (= 81 (part02 test-file)))
+  (is (= 1302 (part02 puzzle-file))))
 
 (run-tests)
