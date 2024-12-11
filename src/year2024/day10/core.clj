@@ -1,8 +1,6 @@
 (ns year2024.day10.core
   (:require [clojure.string :as s]
             [clojure.pprint :refer [pprint]]
-            [clojure.set :as set]
-            [clojure.math.combinatorics :as combo]
             [clojure.test :refer [deftest is run-tests]]))
 
 (def test-file "resources/year2024/day10/test-input")
@@ -25,9 +23,7 @@
                    (map #(map str %))
                    (mapv #(mapv parse-long %)))]
     {:board board
-     :trail-heads (->> (find-element board 0)
-                       #_(filter (partial edge-point? board))
-                       )}))
+     :trail-heads (find-element board 0)}))
 
 (defn north [[row col]] [(dec row) col])
 (defn south [[row col]] [(inc row) col])
