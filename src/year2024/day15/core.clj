@@ -12,6 +12,9 @@
 (def WALL  \#)
 (def ROBOT \@)
 
+(def BIGBOX-L \[)
+(def BIGBOX-R \])
+
 ;; Movement commands
 (def MOVE-UP    \^)
 (def MOVE-DOWN  \v)
@@ -24,7 +27,9 @@
 (defn east  [[row col]] [row       (inc col)])
 (defn west  [[row col]] [row       (dec col)])
 
-(defn transpose [v] (apply mapv vector v))
+(defn dir->sym
+  [dir]
+  (get (into {} [[north :north] [south :south] [east :east] [west :west]]) dir))
 
 (defn parse-input
   [file]
@@ -46,7 +51,9 @@
 (defn move-object
   "Move an object at location `start-pos` to the location calculated from
    function `dir-fn`."
-  [board start-pos dir-fn]
+  [board start-pos dir-fn & {:as opts}]
+  (when (:debug opts)
+    (println "\t\t=> Move" (get-in board start-pos) "from" start-pos "to" (dir-fn start-pos)))
   (when (get-in board (dir-fn start-pos))
     (-> board
         (update-in (dir-fn start-pos) (constantly (get-in board start-pos)))
@@ -138,11 +145,79 @@
 
 ;; Part 2
 
-(defn part02
-  [])
+;; Unfortunately requires a rewrite of the algorithm used. Use a recursive
+;; function to push a block by first pushing on the block ahead and
+;; terminating if the spot to be pushed into is empty or a wall.
 
-(part02)
+(defn ch->big-ch
+  [ch]
+  (condp = ch
+    BOX [BIGBOX-L BIGBOX-R]
+    ROBOT [ROBOT EMPTY]
+    [ch ch]))
 
-(deftest test-part02)
+(defn board->big-board
+  [board]
+  (->> board
+       (mapv #(vec (mapcat ch->big-ch %)))))
+
+(defn push2
+  "Push in a direction from a position."
+  [board dir pos & {:as opts}]
+  (let [this (get-in board pos)
+        ahead (get-in board (dir pos))]
+    (when (:debug opts)
+      (println "\t=> At" pos "push" this "from the" (dir->sym dir) "onto" ahead))
+    (cond
+      ; Terminating condition - moving into wall passed up by a nil board
+      (nil? board)
+      nil
+      ; Terminating condition - push into empty space
+      (= ahead EMPTY)
+      (move-object board pos dir opts)
+      ; Terminating condition - can't move into wall
+      (= ahead WALL)
+      nil
+      ; Push box from the east or west
+      (or (= dir east) (= dir west))
+      (-> board
+          (push2 dir (dir pos) opts)
+          (move-object pos dir opts))
+      ; Push box from the north or south
+      (or (= dir north) (= dir south))
+      (let [side-dir (if (= ahead BIGBOX-L) east west)
+            side-pos (side-dir pos)]
+        (-> board
+            (push2 dir (dir side-pos) opts)
+            (push2 dir (dir pos) opts)
+            (move-object pos dir opts))))))
+
+(defn perform-moves2
+  [board moves & {:as opts}]
+  (->> (reduce
+        (fn [board move]
+          (when (:debug opts)
+            (println "=> Perform move" move)
+            (pprint (map s/join board)))
+          ; If move would fail then don't update board
+          (or (push2 board (move-dir move) (first (locations board ROBOT)) opts)
+              board))
+        board
+        moves)))
+
+ (defn part02
+  [file & {:as opts}]
+  (let [{:keys [board moves]} (parse-input file)
+        new-board (perform-moves2 (board->big-board board) moves opts)
+        _ (and (:debug opts) (->> new-board (map s/join) pprint))
+        boxes (locations new-board BIGBOX-L)]
+    (->> boxes
+         (map reverse)
+         (map gps)
+         (apply +))))
+
+(deftest test-part02
+  (is (= 9021 (part02 test-file)))
+  (is (= 1429013 (part02 puzzle-file))))
 
 (run-tests)
