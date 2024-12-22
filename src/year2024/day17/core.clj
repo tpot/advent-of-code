@@ -5,6 +5,7 @@
             [clojure.test :refer [deftest is run-tests]]))
 
 (def test-file "resources/year2024/day17/test-input")
+(def test-file2 "resources/year2024/day17/test-input2")
 (def puzzle-file "resources/year2024/day17/input")
 
 (defn parse-input
@@ -102,5 +103,45 @@
 (deftest test-part01
   (is (= "4,6,3,5,6,3,5,2,1,0" (part01 test-file)))
   (is (= "3,1,5,3,7,4,2,7,5" (part01 puzzle-file))))
+
+(defn execute-seq
+  "Lazy sequence of program state after executing one instruction."
+  ([program {:keys [_registers ip _output] :as state}]
+   (let [instr (get opcode-map (get program ip) nil)
+         oper (get program (inc ip) nil)]
+     (if (or (nil? instr) (nil? oper))
+       nil ; Halted
+       (let [new-state (execute-instr state instr oper)]
+         (lazy-seq (cons new-state (execute-seq program new-state))))))))
+
+(defn program-matches-output?
+  "Execute a program with inital register value of a and return true if it
+   outputs its own program."
+  [program a]
+  (let [initial-state {:registers {:A a :B 0 :C 0} :ip 0 :output []}]
+    (reduce
+     (fn ([_ {:keys [output] :as _state}]
+          (if (= output (take (count output) program))
+              ;; Check if we match the entire program
+            (when (= (count output) (count program)) (reduced true))
+              ;; Bail out early if the output diverges from the program
+            (reduced false))))
+     nil
+     (execute-seq program initial-state))))
+
+(defn part02
+  [file & {:keys [debug]}]
+  (let [{:keys [_registers program]} (parse-input file)]
+    (reduce
+     (fn [_ a]
+       (when (and debug (zero? (mod a 100000))) (println a))
+       (when (program-matches-output? program a) (reduced a)))
+     nil
+     (range))))
+
+(deftest test-part02
+  (is (= 117440 (part02 test-file2)))
+  ;; Still too slow to solve the problem ):
+  #_(is (= nil (part02 puzzle-file))))
 
 (run-tests)
