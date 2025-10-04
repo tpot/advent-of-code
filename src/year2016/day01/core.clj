@@ -1,5 +1,6 @@
 (ns year2016.day01.core
   (:require [clojure.string :as s]
+            [clojure.set :as set]
             [clojure.test :refer [deftest is run-tests]]
             [clojure.java.io :as io]))
 
@@ -32,9 +33,33 @@
   "Return new facing direction given current facing and turn direction"
   [facing turn-dir]
   (let [new-facing (condp = turn-dir
-                         :R (inc (get COMPASS-POINTS-LOOKUP facing))
-                         :L (dec (get COMPASS-POINTS-LOOKUP facing)))]
+                     :R (inc (get COMPASS-POINTS-LOOKUP facing))
+                     :L (dec (get COMPASS-POINTS-LOOKUP facing)))]
     (get COMPASS-POINTS-LOOKUP (mod new-facing 4))))
+
+(defn path
+  "Path between two endpoints."
+  [x1 y1 x2 y2]
+  (let [x-delta (- x2 x1)
+        y-delta (- y2 y1)
+        x-range (if (zero? x-delta)
+                  (repeat x1)
+                  (range x1 (if (< x2 x1) (dec x2) (inc x2)) (if (< x2 x1) -1 1)))
+        y-range (if (zero? y-delta)
+                  (repeat y1)
+                  (range y1 (if (< y2 y1) (dec y2) (inc y2)) (if (< y2 y1) -1 1)))]
+    (map vector x-range y-range)))
+
+(defn get-first-visited
+  "Return the first location from path that is present in visited."
+  [visited path]
+  (reduce
+   (fn [_ loc]
+     (if (contains? visited loc)
+       (reduced loc)
+       nil))
+   nil
+   path))
 
 (defn new-pos
   "Calculate new position after processing directions"
@@ -42,25 +67,37 @@
   (reduce
    (fn [state [turn-dir dist]]
      (let [new-facing (new-facing-dir (get state :facing) turn-dir)
-           {:keys [x-pos y-pos]} state]
+           {:keys [x-pos y-pos visited-locations first-visited]} state
+           new-x-pos (condp = new-facing
+                       :E (+ x-pos dist)
+                       :W (- x-pos dist)
+                       x-pos)
+           new-y-pos (condp = new-facing
+                       :N (+ y-pos dist)
+                       :S (- y-pos dist)
+                       y-pos)
+           path (path x-pos y-pos new-x-pos new-y-pos)
+           loc (get-first-visited visited-locations (drop 1 path))]
        {:facing new-facing
-        :x-pos (condp = new-facing
-                 :E (+ x-pos dist)
-                 :W (- x-pos dist)
-                 x-pos)
-        :y-pos (condp = new-facing
-                 :N (+ y-pos dist)
-                 :S (- y-pos dist)
-                 y-pos)}))
-   {:facing :N :x-pos 0 :y-pos 0}
+        :x-pos new-x-pos
+        :y-pos new-y-pos
+        :visited-locations (set/union visited-locations (set path))
+        :first-visited (if (and (nil? first-visited) loc) loc first-visited)}))
+   {:facing :N :x-pos 0 :y-pos 0 :visited-locations #{} :first-visited nil}
    input))
 
 (defn rdr [input] (io/reader (java.io.StringReader. input)))
 
+(defn submap?
+  "Return true if the keys in expected have the same values in actual."
+  [expected actual]
+  (= expected (select-keys actual (keys expected))))
+
 (deftest test-new-pos
-  (is (= {:facing :N :x-pos 2  :y-pos 3}  (new-pos (parse-input (rdr "R2, L3")))))
-  (is (= {:facing :W :x-pos 0  :y-pos -2} (new-pos (parse-input (rdr "R2, R2, R2")))))
-  (is (= {:facing :S :x-pos 10 :y-pos 2}  (new-pos (parse-input (rdr "R5, L5, R5, R3"))))))
+  (is (submap? {:facing :N :x-pos 2  :y-pos 3}  (new-pos (parse-input (rdr "R2, L3")))))
+  (is (submap? {:facing :W :x-pos 0  :y-pos -2} (new-pos (parse-input (rdr "R2, R2, R2")))))
+  (is (submap? {:facing :S :x-pos 10 :y-pos 2}  (new-pos (parse-input (rdr "R5, L5, R5, R3")))))
+  (is (submap? {:first-visited [4 0]}           (new-pos (parse-input (rdr "R8, R4, R4, R8"))))))
 
 (defn part01
   [input]
@@ -75,8 +112,12 @@
   (is (= 291 (part01 (parse-input puzzle-input)))))
 
 (defn part02
-  [input])
+  [input]
+  (->> (new-pos input)
+       :first-visited
+       (apply +)))
 
-(deftest test-part02)
+(deftest test-part02
+  (is (= 159 (part02 (parse-input puzzle-input) ))))
 
 (run-tests)
