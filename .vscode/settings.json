@@ -1,4 +1,7 @@
 {
+    "files.associations": {
+        "{test-}input": "ignore",
+    },
     "[clojure]": {
         "editor.quickSuggestions": {
             "other": false,
