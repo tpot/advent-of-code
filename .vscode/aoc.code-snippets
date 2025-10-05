@@ -23,7 +23,7 @@
 			"            [clojure.test :refer [deftest is run-tests]]))",
 			"",
 			"(def test-input \"resources/year2016/day$0/test-input\")",
-			"(def puzzle-input \"resources/year2021/day$0/input\")",
+			"(def puzzle-input \"resources/year2016/day$0/input\")",
 			"",
 			"(defn parse-input",
 			"  [input]",
