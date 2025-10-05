@@ -1,5 +1,6 @@
 (ns year2016.day02.core
-  (:require [clojure.test :refer [deftest is run-tests]]))
+  (:require [clojure.java.io :as io]
+            [clojure.test :refer [deftest is run-tests]]))
 
 ;; Puzzle input
 
