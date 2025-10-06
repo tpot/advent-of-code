@@ -50,9 +50,37 @@
 (deftest test-part01
   (is (= 173787 (part01 (parse-input puzzle-input)))))
 
-(defn part02
-  [input])
+(def INT-A (int (first "a")))
 
-(deftest test-part02)
+(defn rotate-char
+  "Rotate alphabetic char c by n digits"
+  [n c]
+  (if (= c \-)
+    \space
+    (-> c
+        int
+        (- INT-A)
+        (+ n)
+        (mod 26)
+        (+ INT-A)
+        char)))
+
+(defn rotate-string
+  "Rotate alphabetic string s by n digits"
+  [n s]
+  (->> s (map (partial rotate-char n)) str/join))
+
+(deftest test-rotate-string
+  (is (= "very encrypted name" (rotate-string 343 "qzmt-zixmtkozy-ivhz"))))
+
+(defn part02
+  [input]
+  (->> input
+       (filter #(= "northpole object storage" (rotate-string (get % :sector-id) (get % :name))))
+       first
+       :sector-id))
+
+(deftest test-part02
+  (is (= 548 (part02 (parse-input puzzle-input)))))
 
 (run-tests)
