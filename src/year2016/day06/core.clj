@@ -24,9 +24,16 @@
   (is (= "afwlyyyq" (part01 (parse-input puzzle-input)))))
 
 (defn part02
-  [input])
+  [input]
+  (->> input
+       (apply mapv vector)              ; Transpose
+       (map frequencies)                ; Get letter frequences
+       (map #(apply min-key val %))     ; Find map entry with smallest value
+       (map first)                      ; Get letter
+       (apply str)))                    ; Convert to a string
 
 (deftest test-part02
-)
+  (is (= "advent" (part02 (parse-input test-input))))
+  (is (= "bhkzekao" (part02 (parse-input puzzle-input)))))
 
 (run-tests)
