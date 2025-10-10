@@ -64,11 +64,56 @@
 (deftest test-part01
   (is (= 110 (part01 (parse-input puzzle-input)))))
 
+(defn addr-aba?
+  "Return true if an address is an ABA, false otherwise."
+  [[a b c]]
+  (and
+   (= a c)
+   (not (= a b))))
+
+(defn matching-bab
+  "Return matching BAB for an ABA."
+  [aba]
+  (when (addr-aba? aba)
+    (let [[x y _] aba]
+      (str y x y))))
+
+(deftest test-is-addr-aba
+  (is (addr-aba? "aba"))
+  (is (not (addr-aba? "abc")))
+  (is (not (addr-aba? "aaa"))))
+
+(defn get-abas
+  "Return all possible ABAs for an address."
+  [addr]
+  (->> addr
+       (partition 3 1)
+       concat
+       (map #(apply str %))
+       (filter addr-aba?)))
+
+(defn supports-ssl?
+  "Return true if an address supports SSL, false otherwise."
+  [{:keys [supernets hypers]}]
+  (let [abas (->> supernets (map get-abas) (apply concat))
+        babs (->> hypers (map get-abas) (apply concat))]
+    (boolean
+     ;; SSL is supported if there is a BAB for any ABA
+     (some #(contains? (set babs) (matching-bab %)) abas))))
+
+(deftest test-supports-ssl
+  (is (= true  (supports-ssl? (parse-address "aba[bab]xyz"))))
+  (is (= false (supports-ssl? (parse-address "xyx[xyx]xyx"))))
+  (is (= true  (supports-ssl? (parse-address "aaa[kek]eke"))))
+  (is (= true  (supports-ssl? (parse-address "zazbz[bzb]cdb")))))
+
 (defn part02
   [input]
-)
+  (->> input
+       (filter supports-ssl?)
+       count))
 
 (deftest test-part02
-)
+  (is (= 242 (part02 (parse-input puzzle-input)))))
 
 (run-tests)
