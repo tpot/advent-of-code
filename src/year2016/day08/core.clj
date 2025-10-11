@@ -4,6 +4,9 @@
             [clojure.set :as set]
             [clojure.test :refer [deftest is run-tests]]))
 
+(def MAX-X 50)
+(def MAX-Y 6)
+
 (def puzzle-input "resources/year2016/day08/input")
 
 (defn parse-line
@@ -28,8 +31,39 @@
   (->> (line-seq (clojure.java.io/reader input))
        (map parse-line)))
 
-(def MAX-X 50)
-(def MAX-Y 6)
+(defn grid-new
+  "Return an empty grid of given dimensions."
+  [width height]
+  {:width  width
+   :height height
+   :points #{}})
+
+(defn grid-set-points
+  "Set points on a grid"
+  [grid xs]
+  (update grid :points #(set/union % xs)))
+
+(defn grid-clear-points
+  "Clear points on a grid"
+  [grid xs]
+  (update grid :points #(set/difference % xs)))
+
+(defn grid->str
+  "Convert grid to a string."
+  [{:keys [width height points]}]
+  (let [grid-str (take height (repeat (take width (repeat \.))))]
+    (->> points
+         (reduce
+          (fn [result input]
+            (update-in result (reverse input) (constantly \#)))
+          (mapv #(mapv identity %) grid-str))
+         (map #(s/join %))
+         (s/join "\n"))))
+
+(defn grid-points-in-region
+  "Return points set within a region."
+  [grid xs]
+  (set/intersection (get grid :points) xs))
 
 (defn rect-points
   "All points in a rectangular area."
@@ -41,65 +75,55 @@
 
 (defn col-points
   "All points in a column; x is constant"
-  [x]
-  (set (map vector (repeat x) (range 0 MAX-Y))))
+  [grid x]
+  (set (map vector (repeat x) (range 0 (get grid :height)))))
 
 (defn row-points
   "All points in a row; y is constant"
-  [y]
-  (set (map vector (range 0 MAX-X) (repeat y))))
-
-(def empty-screen (vec (take MAX-Y (repeat (vec (take MAX-X (repeat \.)))))))
-
-(defn screen->str
-  "Convert screen of points to a string."
-  [screen-points]
-  (->> screen-points
-       (reduce
-        (fn [screen input]
-          (update-in screen (reverse input) (constantly \#)))
-        empty-screen)
-       (map #(s/join %))
-       (s/join "\n")))
+  [grid y]
+  (set (map vector (range 0 (get grid :width)) (repeat y))))
 
 (defn rotate-column
-  [screen-points n by]
-  (let [col (col-points n)
-        on-in-col (set/intersection screen-points col)
-        rot-in-col (set (map (fn [[x y]] (vector x (mod (+ by y) MAX-Y))) on-in-col))]
-    (set/union
-     (set/difference screen-points on-in-col)
-     rot-in-col)))
+  [grid n by]
+  (let [col (col-points grid n)
+        on-in-col (grid-points-in-region grid col)
+        rot-in-col (set (map (fn [[x y]] (vector x (mod (+ by y) (get grid :height)))) on-in-col))]
+    (-> grid
+        (grid-clear-points col)
+        (grid-set-points rot-in-col))))
 
 (defn rotate-row
-  [screen-points n by]
-  (let [row (row-points n)
-        on-in-row (set/intersection screen-points row)
-        rot-in-row (set (map (fn [[x y]] (vector (mod (+ by x) MAX-X) y)) on-in-row))]
-    (set/union
-     (set/difference screen-points on-in-row)
-     rot-in-row)))
+  [grid n by]
+  (let [row (row-points grid n)
+        on-in-row (grid-points-in-region grid row)
+        rot-in-row (set (map (fn [[x y]] (vector (mod (+ by x) (get grid :width)) y)) on-in-row))]
+    (-> grid
+        (grid-clear-points row)
+        (grid-set-points rot-in-row))))
 
 (defn do-instructions
   [instrs & {:keys [debug] :or {debug false}}]
   (reduce
-   (fn [screen-points instr]
+   (fn [grid instr]
      (condp = (get instr :cmd)
-       :rect (let [{:keys [width height]} instr]
-               (when debug (println "rect" width "x" height))
-               (set/union screen-points (rect-points 0 0 width height)))
-       :rotate-row (let [{:keys [count by]} instr]
-                     (when debug (println "rotate-row" "count" count "by" by))
-                     (rotate-row screen-points count by))
+       :rect          (let [{:keys [width height]} instr]
+                        (when debug (println "rect" width "x" height))
+                        (grid-set-points grid (rect-points 0 0 width height)))
+       :rotate-row    (let [{:keys [count by]} instr]
+                        (when debug (println "rotate-row" "count" count "by" by))
+                        (rotate-row grid count by))
        :rotate-column (let [{:keys [count by]} instr]
                         (when debug (println "rotate-column" "count" count "by" by))
-                        (rotate-column screen-points count by))))
-   #{}
+                        (rotate-column grid count by))))
+   (grid-new MAX-X MAX-Y)
    instrs))
 
 (defn part01
   [input]
-  (count (do-instructions input)))
+  (-> input
+      do-instructions
+      :points
+      count))
 
 (deftest test-part01
   (is (= 116 (part01 (parse-input puzzle-input)))))
@@ -112,7 +136,7 @@
 ;;
 ;; (-> (parse-input puzzle-input)
 ;;     part02
-;;     screen->str
+;;     grid->str
 ;;     println)
 ;; ; #..#.###...##....##.####.#....###...##..####.####.
 ;; ; #..#.#..#.#..#....#.#....#....#..#.#..#.#.......#.
