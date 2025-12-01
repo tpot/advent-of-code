@@ -18,13 +18,13 @@
 	"Day template": {
 		"scope": "clojure",
 		"body": [
-			"(ns year2016.day$0.core",
+			"(ns year2025.day$0.core",
 			"  (:require [clojure.java.io :as io]",
 			"            [clojure.string :as s]",
 			"            [clojure.test :refer [deftest is run-tests]]))",
 			"",
-			"(def test-input \"resources/year2016/day$0/test-input\")",
-			"(def puzzle-input \"resources/year2016/day$0/input\")",
+			"(def test-input \"resources/year2025/day$0/test-input\")",
+			"(def puzzle-input \"resources/year2025/day$0/input\")",
 			"",
 			"(defn parse-input",
 			"  [input]",
@@ -48,14 +48,53 @@
 			"(run-tests)",
 		]
 	},
-	"Reduce function": {
+	"Reduce": {
 		"scope": "clojure",
 		"body": [
 			"(reduce",
-			" (fn [result input] result)",
+			" (fn [acc input]",
+			"   $0)",
 			" initial-result",
 			" input)",
 			"",
 		],
-	}
+	},
+	"do comment": {
+		"scope": "clojure",
+		"body": [
+			"(comment",
+			"  (do",
+			"",
+			"    $0",
+			"",
+			"    #_0)",
+			"  :rcf)",
+			"",
+		],
+	},
+	"Transducer": {
+		"scope": "clojure",
+		"body": [
+			"(defn xf-foo [xf]",
+			"  (fn",
+			"    ;; SET-UP",
+			"    ([]              (xf))",
+			"    ;; PROCESS",
+			"    ([result input]  (xf result input))",
+			"    ;; TEAR-DOWN",
+			"    ([result]        (xf result))))",
+			"",
+		]
+	},
+	"Transduce": {
+		"scope": "clojure",
+		"body": [
+			"(transduce",
+			" xform",
+			" f",
+			" init ",
+			" coll)",
+			"",
+		],
+	},
 }
